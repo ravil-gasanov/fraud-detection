@@ -4,8 +4,8 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score
 
-from fraud_detection.config import TRAIN_PATH, RANDOM_STATE
 from fraud_detection.common import build_pipeline, get_X, get_y
+from fraud_detection.config import RANDOM_STATE, TRAIN_PATH
 
 
 def train():
