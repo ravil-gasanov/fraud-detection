@@ -1,4 +1,36 @@
-# fraud_detection
+# Credit Card Fraud Detection
+## Introduction
+This project demonstrates the full lifecycle of a machine learning solution.
+
+I aim to follow best practices and use popular open source tools. To keep the project structure simple
+, I decided to have both model development and model deployment in one repository.
+
+I cover:
+- Problem definition
+- Exploratory data analysis
+- Initial baseline & sanity checks
+- Model development with experiment tracking (using MLFlow)
+- Basic deployment (FastAPI + docker)
+
+I plan to add:
+- Error analysis (does the model perform poorly on critical subsets? is it fair?)
+- Model registry
+- Monitoring (especially, drift detection)
+- Pre-deployment checks
+- CI/CD & automatic re-training
+
+## Problem Definition
+The goal is to detect fraud in credit card transactions. As the running example, I use real anonymized transactions [data](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud).
+
+The data is labelled, so a supervised classification model is the appropriate method.
+
+The proportion of frauds (positive class) is very small (0.17%), i.e., the data is very imbalanced, so using accuracy as the metric is out of the question. 
+
+Furthermore, we want to minimize both false negatives (undetected frauds) and false positives (non-fraud transactions flagged as fraud), since both affect customer experience and cost resources to handle.
+
+Therefore, an appropriate metric is the F1-score, which balances both precision and recall.
+
+## Project Structure
 
 <a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
     <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
@@ -10,6 +42,7 @@ A short description of the project.
 
 ```
 ├── LICENSE            <- Open-source license if one is chosen
+|── Dockerfile         <- A basic dockerfile to create a predict endpoint image
 ├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
 ├── README.md          <- The top-level README for developers using this project.
 ├── data
@@ -43,16 +76,19 @@ A short description of the project.
     │
     ├── __init__.py             <- Makes fraud_detection a Python module
     │
+    ├── common.py               <- Re-used code: get_X, get_y, build_pipeline
+    │
     ├── config.py               <- Store useful variables and configuration
     │
-    ├── dataset.py              <- Scripts to download or generate data
+    ├── dataset.py              <- Scripts to download and split data into train/test sets
     │
+    ├── experiment.py           <- Code to conduct experiments (search for the best model)
+    |
     ├── features.py             <- Code to create features for modeling
     │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
+    ├── predict.py              <- Local FastAPI predict endpoint
+    |
+    ├── train.py                <- Code to train selected model on the full training set and save
     │
     └── plots.py                <- Code to create visualizations
 ```
