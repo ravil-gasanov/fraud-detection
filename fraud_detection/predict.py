@@ -1,16 +1,20 @@
-import os
-
 from fastapi import FastAPI
-import joblib
+import mlflow
+import mlflow.sklearn
 import pandas as pd
 
 from fraud_detection.common import get_X
 
 app = FastAPI()
 
+mlflow.set_tracking_uri("http://localhost:5000")
+
 
 def load_model():
-    model = joblib.load("models/rfc_trained.pkl")
+    model_name = "trained_rfc"
+    model = mlflow.sklearn.load_model(
+        model_uri=f"models:/{model_name}/latest",
+    )
 
     return model
 
@@ -22,27 +26,15 @@ def root():
 
 @app.post("/predict")
 def predict(data: dict):
-    try:
-        data = pd.DataFrame(data)
-        X = get_X(data=data)
-    except Exception as e:
-        return {"error": f"Invalid input data. Please check your input.\n{e}"}
+    data = pd.DataFrame(data)
+    X = get_X(data=data)
+    model = load_model()
 
-    try:
-        model = load_model()
-    except FileNotFoundError:
-        return {
-            f'error": "Model not found. Please train the model first.\n{os.listdir("models/")}'
-        }
+    prediction = model.predict(X)[0]
 
-    try:
-        prediction = model.predict(X)[0]
-
-        if prediction == 1:
-            prediction = "Fraud"
-        else:
-            prediction = "Not Fraud"
-    except Exception as e:
-        return {"error": f"Prediction failed. Please check your model.\n{e}"}
+    if prediction == 1:
+        prediction = "Fraud"
+    else:
+        prediction = "Not Fraud"
 
     return {"prediction": prediction}
