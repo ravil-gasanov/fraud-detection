@@ -10,6 +10,6 @@ RUN pip install -r requirements-production.txt
 COPY . .
 RUN pip install -e .
 
-EXPOSE 8080
+EXPOSE 8000
 
-CMD ["uvicorn", "fraud_detection.predict:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "fraud_detection.predict:app", "--host", "0.0.0.0", "--port", "8000"]
