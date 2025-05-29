@@ -3,10 +3,20 @@ services:
     build: .
     ports:
       - "8000:8000"
-  # mlflow:
-  #   image: ghcr.io/mlflow/mlflow:latest
-  #   command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri 'sqlite:///mlflow/mlflow.db'
-  #   volumes:
-  #     - ./mlflow.db:/mlflow/mlflow.db
-  #   ports:
-  #     - "5000:5000"
+    depends_on:
+      - mlflow
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      - WATCHFILES_FORCE_POLLING=1
+      - PYTHONPATH=/
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri 'sqlite:///var/mlflow.db'
+    volumes:
+      - ./mlartifacts:/var/mlartifacts
+      - ./mlflow.db:/var/mlflow.db
+    ports:
+      - "5000:5000"
+    restart: always
