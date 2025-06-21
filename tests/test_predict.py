@@ -1,7 +1,7 @@
 import json
 import requests
 
-url = "http://localhost:8080/"
+url = "http://localhost:8000/"
 
 
 response = requests.get(url)
@@ -18,5 +18,5 @@ data = json.dumps(
 )
 
 
-response = requests.post(url=url + "predict", data=data)
+response = requests.post(url=url + "predict", data=data, timeout=10)
 print(response.text)
