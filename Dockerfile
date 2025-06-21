@@ -2,9 +2,12 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-COPY . .
+# install system dependencies
+COPY requirements-production.txt ./
+RUN pip install -r requirements-production.txt
 
-RUN pip install pandas==2.2.3 scikit-learn==1.6.1 FastAPI==0.115.12 uvicorn==0.34.2
+# Copy the application code
+COPY . .
 RUN pip install -e .
 
 EXPOSE 8080
