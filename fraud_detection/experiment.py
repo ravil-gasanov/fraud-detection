@@ -1,3 +1,5 @@
+import mlflow
+import mlflow.sklearn
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
@@ -5,6 +7,10 @@ from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
 from fraud_detection.common import build_pipeline, get_X, get_y
 from fraud_detection.config import RANDOM_STATE, TRAIN_PATH
+
+mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_experiment("fraud_detection_experiment")
+
 
 
 def get_cv():
@@ -45,21 +51,24 @@ def run_experiment(train_path=TRAIN_PATH):
 
     models = get_models()
 
+    mlflow.sklearn.autolog()
+
     for model_name, model in models:
-        pipeline = build_pipeline(model_name=model_name, model=model)
-        param_grid = get_model_params(model_name=model_name)
+        with mlflow.start_run(run_name=model_name):
+            pipeline = build_pipeline(model_name=model_name, model=model)
+            param_grid = get_model_params(model_name=model_name)
 
-        gridcv = GridSearchCV(
-            estimator=pipeline,
-            param_grid=param_grid,
-            cv=cv,
-            scoring="f1",
-        )
+            gridcv = GridSearchCV(
+                estimator=pipeline,
+                param_grid=param_grid,
+                cv=cv,
+                scoring="f1",
+            )
 
-        gridcv.fit(X=X, y=y)
+            gridcv.fit(X=X, y=y)
 
-        print(f"Best estimator: {gridcv.best_estimator_}")
-        print(f"Mean test f1-score: {gridcv.best_score_}")
+            print(f"Best estimator: {gridcv.best_estimator_}")
+            print(f"Mean test f1-score: {gridcv.best_score_}")
 
 
 if __name__ == "__main__":
