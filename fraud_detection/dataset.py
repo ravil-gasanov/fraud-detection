@@ -3,7 +3,8 @@ import shutil
 import kagglehub
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from fraud_detection.config import RANDOM_STATE, RAW_PATH, TRAIN_PATH, TEST_PATH, TEST_SIZE
+
+from fraud_detection.config import RANDOM_STATE, RAW_PATH, TEST_PATH, TEST_SIZE, TRAIN_PATH
 
 
 def download_dataset():
